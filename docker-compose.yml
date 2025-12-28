@@ -1,0 +1,39 @@
+x-restart-policy: &restart_policy
+  restart: unless-stopped
+
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "2"
+
+x-api-image: &api_image
+  image: ghcr.io/hiennguyen9874/youtube-get-transcription:${APP__VERSION:-v0.1}-dev
+  build:
+    context: .
+    dockerfile: Dockerfile
+
+x-api-defaults: &api_defaults
+  <<: [*api_image]
+  volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+
+services:
+  api:
+    <<: [*restart_policy, *logging, *api_defaults]
+    hostname: ${COMPOSE_PROJECT_NAME}-api
+    container_name: ${COMPOSE_PROJECT_NAME}_api
+    command:
+      - fastapi
+      - run
+      - --port=80
+      - --reload
+      - "main.py"
+      - --proxy-headers
+      - --workers=1
+    expose:
+      - 80
+    ports:
+      - 18080:80
