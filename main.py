@@ -32,11 +32,23 @@ def get_transcription(url: str, lang: str = "en"):
     ydl_opts = {
         "skip_download": True,
         "quiet": True,
-        "format": "worst",  # Chọn format tệ nhất để đỡ tốn công request thông tin video HD
+        "no_warnings": True,
         "noplaylist": True,
-        "extract_flat": False,  # Phải là False để lấy được subtitles
-        # Bỏ qua check SSL nếu gặp lỗi mạng trong Docker (tùy chọn)
-        # 'nocheckcertificate': True,
+        "writesubtitles": True,
+        "writeautomaticsub": True,
+        "subtitleslangs": ["en.*", "vi.*"],
+        # THAY ĐỔI Ở ĐÂY:
+        # Thay vì dùng Postprocessor (FFmpeg), hãy dùng cái này để yêu cầu format từ server
+        "subtitlesformat": "srt/vtt/best",
+        # Thêm cái này để giảm thời gian chờ kết nối
+        "socket_timeout": 10,  # Timeout ngắn để bỏ qua các kết nối lỗi nhanh hơn
+        "retries": 2,  # Thử lại ít lần thôi để tiết kiệm thời gian
+        # Quan trọng nếu chạy trong Docker: Tránh ghi file tạm thừa thãi
+        "source_address": "0.0.0.0",  # Ép sử dụng IPv4,
+        "nocheckcertificate": True,  # Bỏ qua kiểm tra SSL (giúp nhanh hơn một chút trong Docker)
+        "geo_bypass": True,  # Vượt rào cản địa lý nếu có,
+        "outtmpl": "%(id)s.%(ext)s",  # Đặt tên file ngắn gọn (ID video)
+        "overwrites": True,  # Ghi đè file cũ để tránh xung đột file trong Docker,
     }
 
     try:
@@ -71,6 +83,9 @@ def get_transcription(url: str, lang: str = "en"):
 
             # 4. Tải và xử lý nội dung
             response = requests.get(json_url)
+
+            print(response)
+
             raw_data = response.json()
 
             # Gọi hàm parse để merge text

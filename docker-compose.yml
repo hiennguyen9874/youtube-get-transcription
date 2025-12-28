@@ -28,12 +28,13 @@ services:
     command:
       - fastapi
       - run
-      - --port=80
+      - --port=18080
       - --reload
       - "main.py"
       - --proxy-headers
       - --workers=1
-    expose:
-      - 80
-    ports:
-      - 18080:80
+    # expose:
+    #   - 80
+    # ports:
+    #   - 18080:80
+    network_mode: host
