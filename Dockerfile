@@ -1,10 +1,12 @@
 FROM python:3.11-slim AS base
 
 RUN export DEBIAN_FRONTEND=noninteractive
+# CẬP NHẬT DÒNG NÀY: Thêm ffmpeg và nodejs vào danh sách cài đặt
 RUN --mount=type=cache,id=api-dev-base-install,target=/var/cache/apt apt-get update -yq && \
     apt-get install -yq --no-install-recommends curl \
     ca-certificates libcurl4-openssl-dev libssl-dev \
-    iputils-ping netcat-traditional && \
+    iputils-ping netcat-traditional \
+    ffmpeg nodejs && \ 
     rm -rf /var/lib/apt/lists/*
 
 # Allow legacy SSL renegotiation

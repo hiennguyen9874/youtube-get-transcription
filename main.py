@@ -29,7 +29,15 @@ def parse_youtube_json3(data):
 
 @app.get("/transcribe")
 def get_transcription(url: str, lang: str = "en"):
-    ydl_opts = {"skip_download": True, "quiet": True}
+    ydl_opts = {
+        "skip_download": True,
+        "quiet": True,
+        "format": "worst",  # Chọn format tệ nhất để đỡ tốn công request thông tin video HD
+        "noplaylist": True,
+        "extract_flat": False,  # Phải là False để lấy được subtitles
+        # Bỏ qua check SSL nếu gặp lỗi mạng trong Docker (tùy chọn)
+        # 'nocheckcertificate': True,
+    }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
